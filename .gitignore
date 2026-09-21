@@ -14,6 +14,8 @@ env/
 # Node
 node_modules/
 .npm
+.next/
+out/
 
 # OS files
 Thumbs.db
