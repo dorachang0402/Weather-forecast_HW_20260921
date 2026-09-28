@@ -16,6 +16,7 @@ node_modules/
 .npm
 .next/
 out/
+*.tsbuildinfo
 
 # OS files
 Thumbs.db
