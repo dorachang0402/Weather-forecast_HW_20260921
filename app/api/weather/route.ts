@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import db, { initDatabase } from '@/lib/db';
+import { syncCwaWeatherToSqlite } from '@/lib/syncWeather';
 
 export const dynamic = 'force-dynamic';
 
@@ -7,15 +8,23 @@ export async function GET(request: NextRequest) {
   try {
     initDatabase();
 
-    // 1. 取得 SQLite 中所有可用的預報時段（共 3 個時段）
-    const allSlots = db
+    // 1. 取得 SQLite 中所有可用的預報時段
+    let allSlots = db
       .prepare('SELECT DISTINCT start_time, end_time FROM weather_forecasts ORDER BY start_time ASC')
       .all() as Array<{ start_time: string; end_time: string }>;
 
+    // 若資料庫為空（例如在 Vercel 首次啟動或 /tmp/weather.db 剛建立），自動從 CWA API 抓取並寫入 SQLite
+    if (!allSlots || allSlots.length === 0) {
+      await syncCwaWeatherToSqlite();
+      allSlots = db
+        .prepare('SELECT DISTINCT start_time, end_time FROM weather_forecasts ORDER BY start_time ASC')
+        .all() as Array<{ start_time: string; end_time: string }>;
+    }
+
     if (!allSlots || allSlots.length === 0) {
       return NextResponse.json(
-        { success: false, message: '資料庫中無氣象資料，請先執行同步。' },
-        { status: 404 }
+        { success: false, message: '無法取得氣象資料，請確認 CWA_API_KEY 是否正確。' },
+        { status: 500 }
       );
     }
 
