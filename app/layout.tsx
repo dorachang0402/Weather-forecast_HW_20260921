@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'CWA API Test — Alo DIC-2',
-  description: 'Milestone 1 CWA API connection test',
+  title: '台灣即時氣象地圖 — Taiwan Weather GIS',
+  description: '中央氣象署開放資料即時視覺化地圖（森林系深色風格）',
 };
 
 export default function RootLayout({
@@ -12,8 +12,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-TW">
-      <body>{children}</body>
+    <html lang="zh-TW" suppressHydrationWarning>
+      <body suppressHydrationWarning>{children}</body>
     </html>
   );
 }

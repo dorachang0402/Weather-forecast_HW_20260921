@@ -1,13 +1,20 @@
 :root {
-  --bg: #0f172a;
-  --card-bg: #1e293b;
-  --border: #334155;
-  --text: #f8fafc;
-  --text-muted: #94a3b8;
-  --accent: #38bdf8;
-  --accent-hover: #0284c7;
-  --success: #4ade80;
-  --error: #f87171;
+  /* 使用者指定之森林大地核心色系 */
+  --olive-leaf: #606c38;
+  --black-forest: #283618;
+  --cornsilk: #fefae0;
+  --sunlit-clay: #dda15e;
+  --copperwood: #bc6c25;
+
+  /* 語意化映射 */
+  --bg-primary: var(--black-forest);
+  --text-primary: var(--cornsilk);
+  --text-muted: rgba(254, 250, 224, 0.7);
+  --panel-bg: rgba(40, 54, 24, 0.92);
+  --panel-border: rgba(254, 250, 224, 0.25);
+  --accent: var(--olive-leaf);
+  --accent-warm: var(--sunlit-clay);
+  --accent-hot: var(--copperwood);
 }
 
 * {
@@ -16,113 +23,233 @@
   padding: 0;
 }
 
+html,
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  background-color: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 2.5rem 1rem;
-}
-
-.container {
   width: 100%;
-  max-width: 640px;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #e5eef4;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
-h1 {
-  font-size: 1.75rem;
-  margin-bottom: 0.5rem;
-  color: #fff;
+/* 全螢幕地圖容器 */
+.map-fullscreen {
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
 }
 
-.subtitle {
-  color: var(--text-muted);
-  font-size: 0.95rem;
-  margin-bottom: 1.5rem;
+/* 氣象署 CWA 測站標記樣式（小圓點 + 傾斜醒目數字/標籤） */
+.cwa-station-marker {
+  background: transparent !important;
+  border: none !important;
 }
 
-.card {
-  background-color: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
-}
-
-.btn {
-  background-color: var(--accent);
-  color: #0f172a;
-  font-weight: 600;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: all 0.2s ease;
+.cwa-station-item {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 3px;
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+  transform: translateY(-50%);
 }
 
-.btn:hover:not(:disabled) {
-  background-color: var(--accent-hover);
-  color: #fff;
+.cwa-dot {
+  width: 9px;
+  height: 9px;
+  background-color: #ffffff;
+  border: 2px solid #1e293b;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
 }
 
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+.cwa-station-item:hover .cwa-dot {
+  transform: scale(1.35);
+  background-color: var(--sunlit-clay);
 }
 
-.result-box {
-  margin-top: 1.5rem;
-  border-top: 1px solid var(--border);
-  padding-top: 1.25rem;
+.cwa-temp {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  font-style: italic;
+  color: #0f172a;
+  letter-spacing: -0.5px;
+  text-shadow: 
+    -1.5px -1.5px 0 #ffffff,
+     1.5px -1.5px 0 #ffffff,
+    -1.5px  1.5px 0 #ffffff,
+     1.5px  1.5px 0 #ffffff,
+     0px    0px   5px #ffffff,
+     1px    2px   3px rgba(0, 0, 0, 0.4);
 }
 
-.status-line {
-  font-size: 1.1rem;
-  margin-bottom: 0.75rem;
+.cwa-city {
+  font-size: 11px;
+  font-weight: 700;
+  color: #1e293b;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 1px 4px;
+  border-radius: 3px;
+  border: 0.5px solid rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+/* 使用者定位脈衝標記 */
+.user-location-marker {
+  background: transparent !important;
+  border: none !important;
+}
+
+.user-gps-pulse {
+  width: 18px;
+  height: 18px;
+  background-color: #3b82f6;
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
+  position: relative;
+}
+
+.user-gps-pulse::after {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid #60a5fa;
+  animation: gps-pulse 1.8s infinite ease-out;
+}
+
+@keyframes gps-pulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+/* 毛玻璃半透明面板基底 */
+.glass-panel {
+  background-color: var(--panel-bg);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.35), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+  color: var(--cornsilk);
+}
+
+/* 浮動載入提示遮罩 */
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(40, 54, 24, 0.35);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  pointer-events: all;
+  transition: opacity 0.3s ease;
+}
+
+.loading-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 24px;
+  font-size: 15px;
   font-weight: 500;
+  color: var(--cornsilk);
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  background-color: var(--panel-bg);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
 }
 
-.status-success {
-  color: var(--success);
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(254, 250, 224, 0.3);
+  border-top-color: var(--sunlit-clay);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
 }
 
-.status-error {
-  color: var(--error);
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-.info-badge {
-  display: inline-block;
-  background: rgba(56, 189, 248, 0.15);
-  color: var(--accent);
-  padding: 0.25rem 0.6rem;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
+/* 自訂 Leaflet 樣式 */
+.leaflet-container {
+  width: 100% !important;
+  height: 100% !important;
+  background-color: #dbeafe !important;
 }
 
-.sample-panel {
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 1rem;
-  font-family: monospace;
-  font-size: 0.875rem;
-  color: #e2e8f0;
-  overflow-x: auto;
-  white-space: pre-wrap;
+.leaflet-bar {
+  border: 1px solid var(--panel-border) !important;
+  border-radius: 8px !important;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
 }
 
-.meta-footer {
-  margin-top: 1.5rem;
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  text-align: center;
+.leaflet-bar a {
+  background-color: var(--panel-bg) !important;
+  color: var(--cornsilk) !important;
+  border-bottom: 1px solid var(--panel-border) !important;
+  transition: background-color 0.15s ease;
+}
+
+.leaflet-bar a:hover {
+  background-color: var(--olive-leaf) !important;
+  color: #fff !important;
+}
+
+.leaflet-popup-content-wrapper {
+  background-color: var(--black-forest) !important;
+  color: var(--cornsilk) !important;
+  border: 1px solid var(--panel-border) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4) !important;
+  padding: 4px !important;
+}
+
+.leaflet-popup-tip {
+  background-color: var(--black-forest) !important;
+  border: 1px solid var(--panel-border) !important;
+}
+
+.leaflet-popup-close-button {
+  color: var(--cornsilk) !important;
+  padding: 6px !important;
+}
+
+.leaflet-popup-close-button:hover {
+  color: var(--sunlit-clay) !important;
+}
+
+.leaflet-control-attribution {
+  background: rgba(255, 255, 255, 0.8) !important;
+  color: #475569 !important;
+  font-size: 10px !important;
+  border-radius: 4px 0 0 0;
 }
